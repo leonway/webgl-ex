@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>02.多彩画布</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      #canvas {
+        background-color: antiquewhite;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"> </canvas>
+    <script type="module">
+      /**
+       * three 的颜色库 将css颜色转webgl颜色 以及色相、饱和度、亮度的偏移
+       * requestAnimationFrame
+       * */
+
+      import { Color } from "https://cdn.bootcdn.net/ajax/libs/three.js/r127/three.module.min.js";
+      // console.log(Color);
+      const canvas = document.querySelector("#canvas");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const gl = canvas.getContext("webgl");
+      // 声明颜色 rgba
+      gl.clearColor(1, 1, 0, 1);
+      // 刷底色
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      // 建立Color 对象
+      const color = new Color("rgba(255,0,0,1)");
+      // 声明颜色 rgba
+      gl.clearColor(color.r, color.g, color.b, 1);
+      // 刷底色
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      !(function ani() {
+        // 色相、饱和度、亮度偏移方法
+        color.offsetHSL(0.005, 0, 0);
+        // 声明颜色 rgba
+        gl.clearColor(color.r, color.g, color.b, 1);
+        // 刷底色
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        requestAnimationFrame(ani);
+      })();
+    </script>
+  </body>
+</html>
