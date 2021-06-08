@@ -10,6 +10,7 @@ function initShaders(gl, vsSource, fsSource) {
   gl.attachShader(program, fragmentShader);
   //连接webgl上下文对象和程序对象
   gl.linkProgram(program);
+  // console.log(program);
   //启动程序对象
   gl.useProgram(program);
   //将程序对象挂到上下文对象上
