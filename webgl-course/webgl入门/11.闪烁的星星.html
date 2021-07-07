@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>05.鼠标控制点位</title>
+    <title>11.闪烁星空</title>
     <style>
       body {
         margin: 0;
@@ -16,10 +16,24 @@
         background-size: cover;
         background-position: right bottom;
       }
+      #audio {
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+        opacity: 10%;
+        transition: opacity 200ms;
+        z-index: 20;
+      }
+      #audio:hover {
+        opacity: 90%;
+      }
     </style>
   </head>
 
   <body>
+    <audio id="audio" controls loop autoplay>
+      <source src="./audio/cef.mp3" type="audio/mpeg" />
+    </audio>
     <canvas id="canvas"> </canvas>
     <!-- 顶点着色器 -->
 
@@ -58,6 +72,8 @@
 
     <script type="module">
       import { initShaders } from './jsm/Utils.js'
+      import Compose from './jsm/Compose.js'
+      import Track from './jsm/Track.js'
 
       const canvas = document.querySelector('#canvas')
       canvas.width = window.innerWidth
@@ -75,9 +91,13 @@
       gl.enable(gl.BLEND)
       // 设置片元的合成方式
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+
       const gl_positions = [
         // { x: 0, y: 0, size: Math.random() * 100, rgba: [Math.random(), Math.random(), Math.random(), 1] }
       ]
+
+      // 合成对象
+      const compose = new Compose()
 
       /**
        * 初始化着色器
@@ -90,24 +110,7 @@
       const a_Position = gl.getAttribLocation(gl.program, 'a_Position')
       const a_PointSize = gl.getAttribLocation(gl.program, 'a_PointSize')
       const u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor')
-      /**
-       * vertexAttrib3f 还有很多同族函数
-       *
-       * vertexAttrib1f
-       * vertexAttrib2f
-       * vertexAttrib3f
-       * vertexAttrib4f
-       * 不同的的数字代表 不同的传参数
-       */
-      /**
-       * 总结 glsl es 函数的命名规律
-       * 函数的命名结构是： <基础函数名><参数个数><参数类型>
-       * 以vertexAttrib3f(location,v0,v1,v2)
-       * vertexAttrib 函数基础名
-       * 3 参数个数，这里指的是要传给变量的参数个数，而不是当前函数的参数个数
-       * f 参数类型 f代表float浮点类型，除此之外还有i代表整型 v代表数字。。。
-       *  */
-      // gl.vertexAttrib3f(a_Position, 0.0, 0.7, 0.0);
+
       // 声明颜色 rgba
       gl.clearColor(0, 0, 0, 0)
       // 刷底色
@@ -128,13 +131,48 @@
         const yBaseCenterTop = -yBaseCenter
         // 解决坐标基底的差异
         const [x, y] = [xBaseCenter / halfWidth, yBaseCenterTop / halfHeight]
+        const size = Math.random() * 5 + 2
         const a = Math.random()
-        gl_positions.push({ x, y, size: Math.random() * 5 + 2, a })
-        render()
+        const obj = { x, y, size, a }
+        gl_positions.push(obj)
+
+        // 建立轨道对象
+        const track = new Track(obj)
+        track.start = new Date()
+        track.timeLen = 2000
+        track.loop = true
+        track.keyMap = new Map([
+          [
+            'a',
+            [
+              [500, a],
+              [1000, 0],
+              [1500, a],
+            ],
+          ],
+          [
+            'size',
+            [
+              [200, size],
+              [800, 0],
+              [1200, size],
+            ],
+          ],
+        ])
+
+        compose.add(track)
+        // render()
         // gl.vertexAttrib2f(a_Position, x, y);
         // gl.clear(gl.COLOR_BUFFER_BIT);
         // gl.drawArrays(gl.POINTS, 0, 1);
       })
+
+      !(function ani() {
+        compose.update(new Date().getTime())
+        // console.log('gl_positions', gl_positions)
+        render()
+        requestAnimationFrame(ani)
+      })()
 
       function render() {
         gl.clear(gl.COLOR_BUFFER_BIT)

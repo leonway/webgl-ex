@@ -4,23 +4,27 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>07.鼠标连续创建顶点和大小</title>
+    <title>10.星空</title>
     <style>
       body {
         margin: 0;
         overflow: hidden;
       }
+
       #canvas {
-        background-color: antiquewhite;
+        background: url('./images/sky.jpg');
+        background-size: cover;
+        background-position: right bottom;
       }
     </style>
   </head>
+
   <body>
     <canvas id="canvas"> </canvas>
     <!-- 顶点着色器 -->
 
     <script id="vertexShader" type="x-shader/x-vertex">
-      //attribute 是存储限定符，是专门用于向外部导出与点位相关的对象的，这类似于es6模板语法中 export
+        //attribute 是存储限定符，是专门用于向外部导出与点位相关的对象的，这类似于es6模板语法中 export
       //vec4 是变量类型 vec4是4维矢量对象
       //a_Position 是变量名 之后在js中会根据这个变量名导入变量。这个变量名是一个指针，指向实际数据的存储位置
       attribute vec4 a_Position;
@@ -33,9 +37,22 @@
       }
     </script>
     <!-- 片段着色器 -->
+    <!-- 片元（段）着色器会在每个定点的每个片段（像素里）执行一次main方法 
+      通过计算当前片元距离中心点位是否超过0.5（当前顶点一半的距离）
+      来判断当前片元是否在圆型里 是否需要上色 
+      discard 丢弃 即放弃渲染
+    -->
     <script id="fragmentShader" type="x-shader/x-fragment">
+        // percision 设置精度 mediump 中等  float 浮点
+      precision mediump float;
+      uniform vec4 u_FragColor;
       void main(){
-        gl_FragColor = vec4(1,1,0,1);
+        float dist=distance(gl_PointCoord,vec2(0.5,0.5));
+        if(dist<0.5){
+          gl_FragColor = u_FragColor;
+        }else{
+          discard;
+        }
       }
     </script>
 
@@ -54,8 +71,13 @@
 
       // 三维画笔
       const gl = canvas.getContext('webgl')
-
-      const gl_positions = [{ x: 0, y: 0 }]
+      // 开启片元的颜色合成功能
+      gl.enable(gl.BLEND)
+      // 设置片元的合成方式
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+      const gl_positions = [
+        // { x: 0, y: 0, size: Math.random() * 100, rgba: [Math.random(), Math.random(), Math.random(), 1] }
+      ]
 
       /**
        * 初始化着色器
@@ -67,6 +89,7 @@
       // a_Position = vec4(1,0,0,1)
       const a_Position = gl.getAttribLocation(gl.program, 'a_Position')
       const a_PointSize = gl.getAttribLocation(gl.program, 'a_PointSize')
+      const u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor')
       /**
        * vertexAttrib3f 还有很多同族函数
        *
@@ -86,7 +109,7 @@
        *  */
       // gl.vertexAttrib3f(a_Position, 0.0, 0.7, 0.0);
       // 声明颜色 rgba
-      gl.clearColor(0, 0, 0, 1)
+      gl.clearColor(0, 0, 0, 0)
       // 刷底色
       gl.clear(gl.COLOR_BUFFER_BIT)
 
@@ -105,7 +128,8 @@
         const yBaseCenterTop = -yBaseCenter
         // 解决坐标基底的差异
         const [x, y] = [xBaseCenter / halfWidth, yBaseCenterTop / halfHeight]
-        gl_positions.push({ x, y, size: Math.random() * 100 })
+        const a = Math.random()
+        gl_positions.push({ x, y, size: Math.random() * 5 + 2, a })
         render()
         // gl.vertexAttrib2f(a_Position, x, y);
         // gl.clear(gl.COLOR_BUFFER_BIT);
@@ -114,9 +138,13 @@
 
       function render() {
         gl.clear(gl.COLOR_BUFFER_BIT)
-        gl_positions.forEach(({ x, y, size }) => {
+        gl_positions.forEach(({ x, y, size, a }) => {
           gl.vertexAttrib2f(a_Position, x, y)
           gl.vertexAttrib1f(a_PointSize, size)
+          // gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3])
+          // 或者
+          const arr = new Float32Array([0.87, 0.91, 1, a])
+          gl.uniform4fv(u_FragColor, arr)
           gl.drawArrays(gl.POINTS, 0, 1)
         })
       }

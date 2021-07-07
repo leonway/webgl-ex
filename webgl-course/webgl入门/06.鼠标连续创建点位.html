@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>05.鼠标控制点位</title>
+    <title>06.鼠标连续创建点位</title>
     <style>
       body {
         margin: 0;
@@ -39,32 +39,32 @@
     </script>
 
     <script type="module">
-      import { initShaders } from "./jsm/Utils.js";
+      import { initShaders } from './jsm/Utils.js'
 
-      const canvas = document.querySelector("#canvas");
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const canvas = document.querySelector('#canvas')
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
 
       // 获取着色器文本
-      const vsSource = document.querySelector("#vertexShader").innerText;
-      const fsSource = document.querySelector("#fragmentShader").innerText;
+      const vsSource = document.querySelector('#vertexShader').innerText
+      const fsSource = document.querySelector('#fragmentShader').innerText
       // console.log("vsSource", vsSource);
       // console.log("fsSource", fsSource);
 
       // 三维画笔
-      const gl = canvas.getContext("webgl");
+      const gl = canvas.getContext('webgl')
 
-      const gl_positions = [{ x: 0, y: 0 }];
+      const gl_positions = [{ x: 0, y: 0 }]
 
       /**
        * 初始化着色器
        * 功能：解析着色器文本，整合到程序对象里，关联webgl上下文对象，实现两种语言的相互通信
        *  */
-      initShaders(gl, vsSource, fsSource);
+      initShaders(gl, vsSource, fsSource)
 
       // 设置attribute 变量
       // a_Position = vec4(1,0,0,1)
-      const a_Position = gl.getAttribLocation(gl.program, "a_Position");
+      const a_Position = gl.getAttribLocation(gl.program, 'a_Position')
       /**
        * vertexAttrib3f 还有很多同族函数
        *
@@ -84,38 +84,38 @@
        *  */
       // gl.vertexAttrib3f(a_Position, 0.0, 0.7, 0.0);
       // 声明颜色 rgba
-      gl.clearColor(0, 0, 0, 1);
+      gl.clearColor(0, 0, 0, 1)
       // 刷底色
-      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.clear(gl.COLOR_BUFFER_BIT)
 
       // 绘制顶点
       // gl.drawArrays(gl.POINTS, 0, 1);
-      render();
+      render()
       // 鼠标点击事件
-      canvas.addEventListener("click", ({ clientX, clientY }) => {
-        console.log("clientX,clientY", clientX, clientY);
-        const { left, top, width, height } = canvas.getBoundingClientRect();
-        const [cssX, cssY] = [clientX - left, clientY - top];
+      canvas.addEventListener('click', ({ clientX, clientY }) => {
+        console.log('clientX,clientY', clientX, clientY)
+        const { left, top, width, height } = canvas.getBoundingClientRect()
+        const [cssX, cssY] = [clientX - left, clientY - top]
         // 解决坐标原点位置的差异
-        const [halfWidth, halfHeight] = [width / 2, height / 2];
-        const [xBaseCenter, yBaseCenter] = [cssX - halfWidth, cssY - halfHeight];
+        const [halfWidth, halfHeight] = [width / 2, height / 2]
+        const [xBaseCenter, yBaseCenter] = [cssX - halfWidth, cssY - halfHeight]
         // 解决y方向的差异
-        const yBaseCenterTop = -yBaseCenter;
+        const yBaseCenterTop = -yBaseCenter
         // 解决坐标基底的差异
-        const [x, y] = [xBaseCenter / halfWidth, yBaseCenterTop / halfHeight];
-        gl_positions.push({ x, y });
-        render();
+        const [x, y] = [xBaseCenter / halfWidth, yBaseCenterTop / halfHeight]
+        gl_positions.push({ x, y })
+        render()
         // gl.vertexAttrib2f(a_Position, x, y);
         // gl.clear(gl.COLOR_BUFFER_BIT);
         // gl.drawArrays(gl.POINTS, 0, 1);
-      });
+      })
 
       function render() {
-        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT)
         gl_positions.forEach(({ x, y }) => {
-          gl.vertexAttrib2f(a_Position, x, y);
-          gl.drawArrays(gl.POINTS, 0, 1);
-        });
+          gl.vertexAttrib2f(a_Position, x, y)
+          gl.drawArrays(gl.POINTS, 0, 1)
+        })
       }
     </script>
   </body>
