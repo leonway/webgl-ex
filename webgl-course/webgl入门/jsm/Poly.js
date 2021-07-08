@@ -1,4 +1,4 @@
-const defAttr = () => ({
+const defAttr = {
   gl: null,
   vertices: [],
   geoData: [],
@@ -6,11 +6,13 @@ const defAttr = () => ({
   attrName: 'a_Position',
   count: 0,
   types: ['POINTS'],
-})
+}
 
 export default class Poly {
   constructor(attr) {
-    Object.assign(this, defAttr(), attr)
+    console.log('ctor', this, defAttr, attr)
+    Object.assign(this, defAttr, attr)
+    console.log('ctor', JSON.stringify(this), defAttr, attr)
     this.init()
   }
   init() {
@@ -20,7 +22,8 @@ export default class Poly {
     const vertexBuffer = gl.createBuffer()
     // 往webgl 绑定缓冲对象
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
-
+    //写入数据
+    this.updateBuffer()
     // 获取attribute 变量
     const a_Position = gl.getAttribLocation(gl.program, attrName)
     // 修改attribute 变量
@@ -31,6 +34,7 @@ export default class Poly {
   updateBuffer() {
     const { gl, vertices } = this
     this.updateCount()
+    console.log('this.count', this.count)
     // 写入数据
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW)
   }
@@ -66,8 +70,9 @@ export default class Poly {
   }
   draw(types = this.types) {
     const { gl, count } = this
-    console.log('this', this)
+    console.log('this', JSON.stringify(this))
     for (let type of types) {
+      console.log('type', type, count)
       gl.drawArrays(gl[type], 0, count)
     }
   }

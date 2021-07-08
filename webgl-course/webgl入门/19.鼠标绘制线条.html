@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>18.图形封装</title>
+    <title>19.鼠标绘制线条</title>
     <style>
       body {
         margin: 0;
@@ -39,7 +39,7 @@
     </script>
 
     <script type="module">
-      import { initShaders } from './jsm/Utils.js'
+      import { initShaders, getMousePosInWebgl } from './jsm/Utils.js'
       import Poly from './jsm/Poly.js'
 
       const canvas = document.querySelector('#canvas')
@@ -66,21 +66,15 @@
       // gl.drawArrays(gl.POINTS, 0, 1)
       const poly = new Poly({
         gl,
-        vertices: [0, 0.2],
-        // count: 1,
+        types: ['POINTS', 'LINE_STRIP'],
+        vertices: [],
       })
-      poly.draw()
-
-      setTimeout(() => {
-        poly.addVertice(-0.2, -0.1)
+      canvas.addEventListener('mousedown', (event) => {
+        const { x, y } = getMousePosInWebgl(event, canvas)
+        poly.addVertice(x, y)
         gl.clear(gl.COLOR_BUFFER_BIT)
         poly.draw()
-      }, 1000)
-
-      setTimeout(() => {
-        gl.clear(gl.COLOR_BUFFER_BIT)
-        poly.draw(['POINTS', 'LINE_STRIP'])
-      }, 2000)
+      })
     </script>
   </body>
 </html>
