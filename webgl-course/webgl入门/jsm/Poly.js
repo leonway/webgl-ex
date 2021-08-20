@@ -1,22 +1,25 @@
-const defAttr = {
+const defAttr = () => ({
   gl: null,
   vertices: [],
   geoData: [],
-  size: 2,
+  size: 3,
   attrName: 'a_Position',
+  uniforms:{},
   count: 0,
   types: ['POINTS'],
-}
+  circleDot: false, // 是不是圆点
+  u_IsPOINTS: null, // uniform变量
+})
 
 export default class Poly {
   constructor(attr) {
-    console.log('ctor', this, defAttr, attr)
-    Object.assign(this, defAttr, attr)
-    console.log('ctor', JSON.stringify(this), defAttr, attr)
+    // console.log('ctor', this, defAttr(), attr)
+    Object.assign(this, defAttr(), attr)
+    // console.log('ctor', JSON.stringsify(this), defAttr(), attr)
     this.init()
   }
   init() {
-    const { attrName, size, gl } = this
+    const { attrName,size, gl, circleDot } = this
     if (!gl) return
     // 缓冲对象
     const vertexBuffer = gl.createBuffer()
@@ -30,11 +33,28 @@ export default class Poly {
     gl.vertexAttribPointer(a_Position, size, gl.FLOAT, false, 0, 0)
     // 赋能-批处理
     gl.enableVertexAttribArray(a_Position)
+    // 如果是圆点就获取一下uniform变脸
+    if (circleDot) {
+      this.u_IsPOINTS = gl.getUniformLocation(gl.program, 'u_IsPOINTS')
+    }
+    this.updateUniform()
+  }
+  updateUniform(){
+    const {gl,uniforms} = this
+    for (let [key,val] of Object.entries(uniforms)) {
+      const { type,value } = val
+      const u = gl.getUniformLocation(gl.program,key)
+      if(type.includes('Matrix')){
+        gl[type](u,false,value)
+      }else{
+        gl[type](u,value)
+      }
+    }
   }
   updateBuffer() {
     const { gl, vertices } = this
     this.updateCount()
-    console.log('this.count', this.count)
+    // console.log('this.count', this.count)
     // 写入数据
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW)
   }
@@ -69,10 +89,11 @@ export default class Poly {
     this.vertices = vertices
   }
   draw(types = this.types) {
-    const { gl, count } = this
-    console.log('this', JSON.stringify(this))
+    const { gl, count, u_IsPOINTS, circleDot } = this
+    // console.log('this', JSON.stringify(this))
     for (let type of types) {
-      console.log('type', type, count)
+      // console.log('type', type, count)
+      circleDot && gl.uniform1f(u_IsPOINTS, type === 'POINTS')
       gl.drawArrays(gl[type], 0, count)
     }
   }

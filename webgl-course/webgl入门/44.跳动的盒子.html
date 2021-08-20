@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>44.跳动的盒子.html</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* #canvas {
+            background-color: antiquewhite;
+        } */
+
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"> </canvas>
+    <!-- 顶点着色器 -->
+
+    <script id="vertexShader" type="x-shader/x-vertex">
+        //attribute 是存储限定符，是专门用于向外部导出与点位相关的对象的，这类似于es6模板语法中 export
+      //vec4 是变量类型 vec4是4维矢量对象
+      //a_Position 是变量名 之后在js中会根据这个变量名导入变量。这个变量名是一个指针，指向实际数据的存储位置
+      attribute vec4 a_Position;
+      uniform mat4 u_ModelMatrix;
+      uniform mat4 u_ViewMatrix;
+      void main(){
+        // 点位 GLSL ES语言规定的接收点位的
+        gl_Position = u_ViewMatrix*u_ModelMatrix*a_Position;
+      }
+    </script>
+    <!-- 片段着色器 -->
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        void main(){
+        gl_FragColor = vec4(1,1,0,1);
+      }
+    </script>
+
+    <script type="module">
+        import { initShaders } from './jsm/Utils.js'
+        import { Matrix4,Vector3,Quaternion } from 'https://unpkg.com/three/build/three.module.js';
+      const canvas = document.querySelector('#canvas')
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+
+      // 获取着色器文本
+      const vsSource = document.querySelector('#vertexShader').innerText
+      const fsSource = document.querySelector('#fragmentShader').innerText
+      // console.log("vsSource", vsSource);
+      // console.log("fsSource", fsSource);
+
+      // 三维画笔
+      const gl = canvas.getContext('webgl')
+
+      /**
+       * 初始化着色器
+       * 功能：解析着色器文本，整合到程序对象里，关联webgl上下文对象，实现两种语言的相互通信
+       *  */
+      initShaders(gl, vsSource, fsSource)
+
+      // 如何向attribute变量中写入多点，并绘制多点
+      // 顶点数据
+      
+    const verticeLib = [
+      1.0, 1.0, 1.0,
+      -1.0, 1.0, 1.0,
+      -1.0, -1.0, 1.0,
+      1.0, -1.0, 1.0,
+      1.0, -1.0, -1.0,
+      1.0, 1.0, -1.0,
+      -1.0, 1.0, -1.0,
+      -1.0, -1.0, -1.0,
+    ];
+
+    const indices = [
+      0, 1,
+      1, 2,
+      2, 3,
+      3, 0,
+
+      0, 5,
+      1, 6,
+      2, 7,
+      3, 4,
+
+      4, 5,
+      5, 6,
+      6, 7,
+      7, 4
+    ];
+
+    const arr = [];
+    indices.forEach(n => {
+      const i = n * 3
+      arr.push(
+        verticeLib[i] / 5,
+        verticeLib[i + 1] / 5,
+        verticeLib[i + 2] / 5,
+      )
+    })
+    const vertices = new Float32Array(arr)
+      // 缓冲对象
+      const vertexBuffer = gl.createBuffer()
+      // 往webgl 绑定缓冲对象
+      gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
+      // 写入数据
+      gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)
+      // 获取attribute 变量
+      const a_Position = gl.getAttribLocation(gl.program, 'a_Position')
+      // 修改attribute 变量
+      gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0)
+      // 赋能-批处理
+      gl.enableVertexAttribArray(a_Position)
+
+      const u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix')
+      const u_ModelMatrix = gl.getUniformLocation(gl.program,'u_ModelMatrix')
+      const viewMatrix = new Matrix4().lookAt(
+        new Vector3(0.2,0.2,1),
+        new Vector3(0,0,0),
+        new Vector3(0,1,0),
+      )
+      const modelMatrix = new Matrix4()
+      // modelMatrix.makeRotationY(0.3)
+      gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements)
+      gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements)
+
+      // 声明颜色 rgba
+      gl.clearColor(0, 0, 0, 1)
+      // 刷底色
+      gl.clear(gl.COLOR_BUFFER_BIT)
+
+      // 绘制顶点
+      gl.drawArrays(gl.LINES, 0, indices.length)
+
+      let angle = 0;
+      const minY =-0.7
+      const maxY= 0.7
+      let y =maxY
+      let vy = 0
+      const ay = -0.001
+      const bounce = 1
+      !(function ani() {
+        angle+=0.02
+        vy+=ay
+        y+=vy
+        modelMatrix.makeRotationY(angle)
+        modelMatrix.setPosition(0,y,0)
+
+        /*
+        [
+          0, 1, 2,  3,
+          4, 5, 6,  7,
+          8, 9, 10, 11,
+          12,13,14, 15
+        ]
+        */
+
+        if(modelMatrix.elements[13]<minY){
+          y=minY
+          vy*=-bounce
+        }
+        gl.uniformMatrix4fv(u_ModelMatrix,false,modelMatrix.elements)
+        gl.clear(gl.COLOR_BUFFER_BIT)
+        gl.drawArrays(gl.LINES,0,indices.length)
+        requestAnimationFrame(ani)
+      })()
+    </script>
+</body>
+
+</html>

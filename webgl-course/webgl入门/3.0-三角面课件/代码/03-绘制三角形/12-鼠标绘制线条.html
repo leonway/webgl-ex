@@ -37,42 +37,39 @@
       }
     </script>
     <script type="module">
-      import { initShaders,getMousePosInWebgl } from "../jsm/Utils.js";
-      import Poly from '../jsm/Poly.js';
+      import { initShaders, getMousePosInWebgl } from '../jsm/Utils.js'
+      import Poly from '../jsm/Poly.js'
 
-      const canvas = document.querySelector("#canvas");
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const canvas = document.querySelector('#canvas')
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
 
       // 获取着色器文本
-      const vsSource = document.querySelector("#vertexShader").innerText;
-      const fsSource = document.querySelector("#fragmentShader").innerText;
+      const vsSource = document.querySelector('#vertexShader').innerText
+      const fsSource = document.querySelector('#fragmentShader').innerText
 
       //三维画笔
-      const gl = canvas.getContext("webgl");
+      const gl = canvas.getContext('webgl')
 
       //初始化着色器
-      initShaders(gl, vsSource, fsSource);
-
+      initShaders(gl, vsSource, fsSource)
 
       //声明颜色 rgba
-      gl.clearColor(0, 0, 0, 1);
+      gl.clearColor(0, 0, 0, 1)
       //刷底色
-      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.clear(gl.COLOR_BUFFER_BIT)
 
-      const poly=new Poly({
+      const poly = new Poly({
         gl,
-        types:['POINTS','LINE_STRIP']
+        types: ['POINTS', 'LINE_STRIP'],
       })
-      
-      canvas.addEventListener('mousedown',(event)=>{
-        const {x,y}=getMousePosInWebgl(event,canvas)
-        poly.addVertice(x,y)
-        gl.clear(gl.COLOR_BUFFER_BIT);
+
+      canvas.addEventListener('mousedown', (event) => {
+        const { x, y } = getMousePosInWebgl(event, canvas)
+        poly.addVertice(x, y)
+        gl.clear(gl.COLOR_BUFFER_BIT)
         poly.draw()
       })
-      
-
     </script>
   </body>
 </html>

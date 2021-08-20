@@ -33,8 +33,19 @@
     </script>
     <!-- 片段着色器 -->
     <script id="fragmentShader" type="x-shader/x-fragment">
+      precision mediump float;
+      uniform bool u_IsPOINTS;
       void main(){
-        gl_FragColor = vec4(1,1,0,1);
+        if(u_IsPOINTS){
+          float dist=distance(gl_PointCoord,vec2(0.5,0.5));
+          if(dist<0.5){
+            gl_FragColor = vec4(1,1,0,1);
+          }else{
+            discard;
+          }
+        }else{
+          gl_FragColor = vec4(1,1,0,1);
+        }
       }
     </script>
 
@@ -67,6 +78,7 @@
       const poly = new Poly({
         gl,
         types: ['POINTS', 'LINE_STRIP'],
+        circleDot: true,
         vertices: [],
       })
       canvas.addEventListener('mousedown', (event) => {

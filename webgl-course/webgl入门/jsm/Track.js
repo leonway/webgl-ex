@@ -3,7 +3,7 @@ export default class Track {
     this.target = target
     this.parent = null
     this.start = 0
-    this.timeLen = 6
+    this.timeLen = 5
     this.loop = false
     this.keyMap = new Map()
   }
