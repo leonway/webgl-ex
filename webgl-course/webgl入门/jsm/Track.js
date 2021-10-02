@@ -6,27 +6,33 @@ export default class Track {
     this.timeLen = 5
     this.loop = false
     this.keyMap = new Map()
+    this.onEnd = () => { }
+    this.prevTime = 0
   }
   update(t) {
-    const { keyMap, timeLen, target, loop } = this
-    let time = t - this.start
+    const { keyMap,timeLen,target,loop,start,prevTime } = this
+    let time = t - start
+    if (timeLen >= prevTime && timeLen < time) {
+      this.onEnd()
+    }
+    this.prevTime = time
     if (loop) {
       time = time % timeLen
     }
-    for (const [key, fms] of keyMap.entries()) {
+    for (const [key,fms] of keyMap.entries()) {
       const last = fms.length - 1
       if (time < fms[0][0]) {
         target[key] = fms[0][1]
       } else if (time > fms[last][0]) {
         target[key] = fms[last][1]
       } else {
-        target[key] = getValBetweenFms(time, fms, last)
+        target[key] = getValBetweenFms(time,fms,last)
       }
     }
   }
 }
 
-function getValBetweenFms(time, fms, last) {
+function getValBetweenFms(time,fms,last) {
   for (let i = 0; i < last; i++) {
     const fm1 = fms[i]
     const fm2 = fms[i + 1]

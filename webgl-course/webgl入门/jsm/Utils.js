@@ -1,13 +1,13 @@
-function initShaders(gl, vsSource, fsSource) {
+function initShaders(gl,vsSource,fsSource) {
   //创建程序对象
   const program = gl.createProgram();
   //建立着色对象
-  const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
-  const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+  const vertexShader = loadShader(gl,gl.VERTEX_SHADER,vsSource);
+  const fragmentShader = loadShader(gl,gl.FRAGMENT_SHADER,fsSource);
   //把顶点着色对象装进程序对象中
-  gl.attachShader(program, vertexShader);
+  gl.attachShader(program,vertexShader);
   //把片元着色对象装进程序对象中
-  gl.attachShader(program, fragmentShader);
+  gl.attachShader(program,fragmentShader);
   //连接webgl上下文对象和程序对象
   gl.linkProgram(program);
   //启动程序对象
@@ -17,24 +17,24 @@ function initShaders(gl, vsSource, fsSource) {
   return true;
 }
 
-function loadShader(gl, type, source) {
+function loadShader(gl,type,source) {
   //根据着色类型，建立着色器对象
   const shader = gl.createShader(type);
   //将着色器源文件传入着色器对象中
-  gl.shaderSource(shader, source);
+  gl.shaderSource(shader,source);
   //编译着色器对象
   gl.compileShader(shader);
   //返回着色器对象
   return shader;
 }
 
-function getMousePosInWebgl({ clientX, clientY }, canvas) {
+function getMousePosInWebgl({ clientX,clientY },canvas) {
   //鼠标在画布中的css位置
-  const { left, top, width, height } = canvas.getBoundingClientRect();
-  const [cssX, cssY] = [clientX - left, clientY - top];
+  const { left,top,width,height } = canvas.getBoundingClientRect();
+  const [cssX,cssY] = [clientX - left,clientY - top];
   //解决坐标原点位置的差异
-  const [halfWidth, halfHeight] = [width / 2, height / 2];
-  const [xBaseCenter, yBaseCenter] = [
+  const [halfWidth,halfHeight] = [width / 2,height / 2];
+  const [xBaseCenter,yBaseCenter] = [
     cssX - halfWidth,
     cssY - halfHeight,
   ];
@@ -47,8 +47,8 @@ function getMousePosInWebgl({ clientX, clientY }, canvas) {
   }
 }
 
-function glToCssPos({ x, y }, { width, height }) {
-  const [halfWidth, halfHeight] = [width / 2, height / 2];
+function glToCssPos({ x,y },{ width,height }) {
+  const [halfWidth,halfHeight] = [width / 2,height / 2];
   return {
     x: x * halfWidth,
     y: -y * halfHeight
@@ -56,7 +56,7 @@ function glToCssPos({ x, y }, { width, height }) {
 }
 
 //线性比例尺
-function ScaleLinear(ax, ay, bx, by) {
+function ScaleLinear(ax,ay,bx,by) {
   const delta = {
     x: bx - ax,
     y: by - ay,
@@ -68,4 +68,25 @@ function ScaleLinear(ax, ay, bx, by) {
   };
 }
 
-export { initShaders, getMousePosInWebgl, glToCssPos, ScaleLinear };
+// 正弦函数
+function SinFn(a,Omega,phi) {
+  return function (x) {
+    return a * Math.sin(Omega * x + phi)
+  }
+}
+
+function GetIndexInGrid(w,size) {
+  return function (x,y) {
+    return (y * w + x) * size
+  }
+}
+
+/* 对Image 加载事件的封装 */
+function imgPromise(img) {
+  return new Promise((resolve) => {
+    img.onload = function () {
+      resolve(img);
+    }
+  });
+}
+export { imgPromise,initShaders,getMousePosInWebgl,glToCssPos,ScaleLinear,SinFn,GetIndexInGrid };

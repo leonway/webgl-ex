@@ -2,20 +2,21 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <title>花样转场</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>花样转场</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden
+        }
+
+    </style>
 </head>
 
 <body>
-  <canvas id="canvas"></canvas>
-  <script id="vertexShader" type="x-shader/x-vertex">
-    attribute vec4 a_Position;
+    <canvas id="canvas"></canvas>
+    <script id="vertexShader" type="x-shader/x-vertex">
+        attribute vec4 a_Position;
     attribute vec2 a_Pin;
     varying vec2 v_Pin;
     void main(){
@@ -23,8 +24,8 @@
       v_Pin=a_Pin;
     }
   </script>
-  <script id="fragmentShader" type="x-shader/x-fragment">
-    precision mediump float;
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        precision mediump float;
     uniform sampler2D u_Sampler;
     uniform sampler2D u_Pattern;
     uniform sampler2D u_Gradient;
@@ -38,8 +39,8 @@
       gl_FragColor=mix(o,p,f);
     }
   </script>
-  <script type="module">
-    import Track from "../jsm/Track.js";
+    <script type="module">
+        import Track from "../jsm/Track.js";
     import { imgPromise, initShaders, } from '../jsm/Utils.js';
     import Poly from './jsm/Poly.js';
 
