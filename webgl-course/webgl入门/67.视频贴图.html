@@ -33,7 +33,7 @@
       }
   </script>
     <script type="module">
-        import { initShaders,imgPromise } from '../jsm/Utils.js';
+        import { initShaders,imgPromise } from './jsm/Utils.js';
     import Poly from './jsm/multi-poly.js'
     import Track from './jsm/Track.js'
 
@@ -74,21 +74,21 @@
 
     const video = document.createElement('video')
     video.src = 'http://img.yxyy.name/ripples.mp4'
-    video.autoplay=true
+    video.autoplay = true
     video.setAttribute("crossOrigin",'Anonymous')
     video.muted = true
-    video.loop=true
+    video.loop = true
     video.play()
-    video.addEventListener('playing',()=>{
+    video.addEventListener('playing',() => {
       rect.maps = {
-       u_Sampler:{
-         image:video,
-         wrapS:gl.CLAMP_TO_EDGE,
-         wrapT:gl.CLAMP_TO_EDGE,
-         minFilter:gl.LINEAR
-       }
-     }
-     render()
+        u_Sampler: {
+          image: video,
+          wrapS: gl.CLAMP_TO_EDGE,
+          wrapT: gl.CLAMP_TO_EDGE,
+          minFilter: gl.LINEAR
+        }
+      }
+      render()
     })
 
     //渲染

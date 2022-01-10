@@ -651,7 +651,7 @@ export {initShaders}
 后面在需要的时候，import 引入即可。
 
 ```js
-import {initShaders} from '../jsm/Utils.js';
+import {initShaders} from './jsm/Utils.js';
 ```
 
 
